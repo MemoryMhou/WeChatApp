@@ -8,22 +8,15 @@
 import Foundation
 import Alamofire
 
-class NetworkService {
-    
-    // MARK: - Properties
-    
-    static let shared = NetworkService()
-    
-    // MARK: - Initialization
-    
-    private init() {}
-    
-    // MARK: - Public Methods
-    
-    func fetchProducts(completion: @escaping (Result<Models, AFError>) -> Void) {
-        AF.request("https://dummyjson.com/products")
+protocol NetworkService {
+    func fetchProducts(productUrl: String, completion: @escaping (Result<ProductData, AFError>) -> Void)
+}
+
+class NetworkServiceImplemation: NetworkService {
+    func fetchProducts(productUrl: String, completion: @escaping (Result<ProductData, AFError>) -> Void) {
+        AF.request(productUrl)
             .validate()
-            .responseDecodable(of: Models.self) { response in
+            .responseDecodable(of: ProductData.self) { response in
                 completion(response.result)
             }
     }

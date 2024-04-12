@@ -6,14 +6,13 @@
 //
 
 import UIKit
-import Alamofire
-import AlamofireImage
 
 class ProductsViewController: UIViewController {
 
     // MARK: - Properties
-    
+    let productUrl: String = "https://dummyjson.com/products"
     private var products: [Product] = []
+    private let networkService: NetworkService = NetworkServiceImplemation()
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
@@ -42,11 +41,11 @@ class ProductsViewController: UIViewController {
     }
 
     private func fetchProducts() {
-        NetworkService.shared.fetchProducts { [weak self] result in
+        networkService.fetchProducts(productUrl: productUrl) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let model):
-                self.products = model.products
+            case .success(let data):
+                self.products = data.products
                 self.tableView.reloadData()
             case .failure(let error):
                 print(error)
@@ -60,20 +59,24 @@ class ProductsViewController: UIViewController {
 extension ProductsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return products.count + 1
+    return products.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TitleCell", for: indexPath)
-            cell.textLabel?.text = "Products List"
-            cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 22)
-            return cell
-        } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as! ProductTableViewCell
-            let product = products[indexPath.row - 1]
+            let product = products[indexPath.row]
             cell.configure(with: product)
             return cell
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section:Int) -> String? {
+      return "Products List"
+        
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let titleView = view as? UITableViewHeaderFooterView {
+            titleView.textLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         }
     }
 }
@@ -83,11 +86,10 @@ extension ProductsViewController: UITableViewDataSource {
 extension ProductsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return indexPath.row == 0 ? 50 : 230
+        return 230
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-       
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Alamofire
 import AlamofireImage
 
 class ProductTableViewCell: UITableViewCell {
@@ -24,6 +25,10 @@ class ProductTableViewCell: UITableViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let imageSize = UIScreen.main.bounds.width * 0.4
+        imageView.widthAnchor.constraint(equalToConstant: imageSize).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: imageSize).isActive = true
         return imageView
     }()
     
@@ -71,16 +76,10 @@ class ProductTableViewCell: UITableViewCell {
         
         setupViews()
         setupConstraints()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(updateConstraintsForOrientation), name: UIApplication.willChangeStatusBarOrientationNotification, object: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willChangeStatusBarOrientationNotification, object: nil)
     }
     
     // MARK: - Setup Methods
@@ -103,8 +102,6 @@ class ProductTableViewCell: UITableViewCell {
             containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             
             productImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-            productImageView.widthAnchor.constraint(equalToConstant: 120),
-            productImageView.heightAnchor.constraint(equalToConstant: 120),
             productImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             productImageView.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -10),
             
@@ -140,13 +137,5 @@ class ProductTableViewCell: UITableViewCell {
         if let url = URL(string: product.thumbnail) {
             productImageView.af.setImage(withURL: url)
         }
-    }
-    
-    // MARK: - Private Methods
-    
-    @objc private func updateConstraintsForOrientation() {
-        let imageSize: CGFloat = UIDevice.current.orientation.isLandscape ? 100 : 120
-        productImageView.widthAnchor.constraint(equalToConstant: imageSize).isActive = true
-        productImageView.heightAnchor.constraint(equalToConstant: imageSize).isActive = true
     }
 }
